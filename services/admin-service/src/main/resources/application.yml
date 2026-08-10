@@ -1,0 +1,42 @@
+server:
+  port: ${ADMIN_SERVICE_PORT:8081}
+
+spring:
+
+  application:
+    name: admin-service
+
+
+management:
+
+  endpoints:
+
+    web:
+
+      exposure:
+
+        include:
+          - health
+          - info
+          - prometheus
+
+  endpoint:
+
+    health:
+
+      show-details: always
+
+      probes:
+
+        enabled: true
+
+
+info:
+
+  app:
+
+    name: admin-service
+
+    version: 1.0.0-SNAPSHOT
+
+    description: Administration, NSI, users and permissions service
