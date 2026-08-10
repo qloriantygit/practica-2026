@@ -1,0 +1,222 @@
+name: practica-2026
+
+services:
+
+  admin-db:
+    image: postgres:17.10-alpine
+    container_name: practica-admin-db
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: ${ADMIN_DB_NAME}
+      POSTGRES_USER: ${ADMIN_DB_USER}
+      POSTGRES_PASSWORD: ${ADMIN_DB_PASSWORD}
+
+    ports:
+      - "127.0.0.1:5433:5432"
+
+    volumes:
+      - admin-postgres-data:/var/lib/postgresql/data
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${ADMIN_DB_USER} -d ${ADMIN_DB_NAME}"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+    networks:
+      - practica-network
+
+
+  notification-db:
+    image: postgres:17.10-alpine
+    container_name: practica-notification-db
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: ${NOTIFICATION_DB_NAME}
+      POSTGRES_USER: ${NOTIFICATION_DB_USER}
+      POSTGRES_PASSWORD: ${NOTIFICATION_DB_PASSWORD}
+
+    ports:
+      - "127.0.0.1:5434:5432"
+
+    volumes:
+      - notification-postgres-data:/var/lib/postgresql/data
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${NOTIFICATION_DB_USER} -d ${NOTIFICATION_DB_NAME}"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+    networks:
+      - practica-network
+
+
+  keycloak-db:
+    image: postgres:17.10-alpine
+    container_name: practica-keycloak-db
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: ${KEYCLOAK_DB_NAME}
+      POSTGRES_USER: ${KEYCLOAK_DB_USER}
+      POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+
+    ports:
+      - "127.0.0.1:5435:5432"
+
+    volumes:
+      - keycloak-postgres-data:/var/lib/postgresql/data
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${KEYCLOAK_DB_USER} -d ${KEYCLOAK_DB_NAME}"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+    networks:
+      - practica-network
+
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.7.0
+    container_name: practica-keycloak
+    restart: unless-stopped
+
+    command:
+      - start-dev
+
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/${KEYCLOAK_DB_NAME}
+      KC_DB_USERNAME: ${KEYCLOAK_DB_USER}
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USER}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+
+      KC_HEALTH_ENABLED: "true"
+      KC_METRICS_ENABLED: "true"
+
+    ports:
+      - "127.0.0.1:8180:8080"
+
+    depends_on:
+      keycloak-db:
+        condition: service_healthy
+
+    networks:
+      - practica-network
+
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: practica-rabbitmq
+    restart: unless-stopped
+
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+
+    ports:
+      - "127.0.0.1:5672:5672"
+      - "127.0.0.1:15672:15672"
+
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "rabbitmq-diagnostics",
+          "-q",
+          "ping"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+    networks:
+      - practica-network
+
+
+  minio:
+    image: quay.io/minio/minio
+    container_name: practica-minio
+    restart: unless-stopped
+
+    command:
+      - server
+      - /data
+      - --console-address
+      - ":9001"
+
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+
+    volumes:
+      - minio-data:/data
+
+    networks:
+      - practica-network
+
+
+  mailpit:
+    image: axllent/mailpit:v1.30
+    container_name: practica-mailpit
+    restart: unless-stopped
+
+    environment:
+      MP_MAX_MESSAGES: 5000
+      MP_DATABASE: /data/mailpit.db
+
+    ports:
+      - "127.0.0.1:8025:8025"
+      - "127.0.0.1:1025:1025"
+
+    volumes:
+      - mailpit-data:/data
+
+    networks:
+      - practica-network
+
+
+networks:
+
+  practica-network:
+    name: practica-network
+
+
+volumes:
+
+  admin-postgres-data:
+
+  notification-postgres-data:
+
+  keycloak-postgres-data:
+
+  rabbitmq-data:
+
+  minio-data:
+
+  mailpit-data:
