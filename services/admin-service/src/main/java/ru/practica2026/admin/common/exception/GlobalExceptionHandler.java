@@ -6,6 +6,7 @@ import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -50,9 +51,14 @@ public class GlobalExceptionHandler {
             MethodArgumentNotValidException exception,
             HttpServletRequest request
     ) {
-        Map<String, String> fieldErrors = new LinkedHashMap<>();
+        Map<String, String> fieldErrors =
+                new LinkedHashMap<>();
 
-        for (FieldError fieldError : exception.getBindingResult().getFieldErrors()) {
+        for (
+                FieldError fieldError :
+                exception.getBindingResult()
+                        .getFieldErrors()
+        ) {
             fieldErrors.putIfAbsent(
                     fieldError.getField(),
                     fieldError.getDefaultMessage()
@@ -87,7 +93,21 @@ public class GlobalExceptionHandler {
     ) {
         return buildResponse(
                 HttpStatus.BAD_REQUEST,
-                "Invalid value for parameter: " + exception.getName(),
+                "Invalid value for parameter: " +
+                exception.getName(),
+                request,
+                Map.of()
+        );
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiError> handleUnreadableMessage(
+            HttpMessageNotReadableException exception,
+            HttpServletRequest request
+    ) {
+        return buildResponse(
+                HttpStatus.BAD_REQUEST,
+                "Request body contains invalid JSON or unsupported value",
                 request,
                 Map.of()
         );
@@ -125,14 +145,15 @@ public class GlobalExceptionHandler {
             HttpServletRequest request,
             Map<String, String> fieldErrors
     ) {
-        ApiError error = new ApiError(
-                Instant.now(),
-                status.value(),
-                status.getReasonPhrase(),
-                message,
-                request.getRequestURI(),
-                fieldErrors
-        );
+        ApiError error =
+                new ApiError(
+                        Instant.now(),
+                        status.value(),
+                        status.getReasonPhrase(),
+                        message,
+                        request.getRequestURI(),
+                        fieldErrors
+                );
 
         return ResponseEntity
                 .status(status)
