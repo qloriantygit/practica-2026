@@ -99,6 +99,7 @@ services:
 
     command:
       - start-dev
+      - --import-realm
 
     environment:
       KC_DB: postgres
@@ -109,11 +110,17 @@ services:
       KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USER}
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
 
+      KEYCLOAK_TEST_ADMIN_PASSWORD: ${KEYCLOAK_TEST_ADMIN_PASSWORD}
+      KEYCLOAK_ANALYST_USER_PASSWORD: ${KEYCLOAK_ANALYST_USER_PASSWORD}
+
       KC_HEALTH_ENABLED: "true"
       KC_METRICS_ENABLED: "true"
 
     ports:
       - "127.0.0.1:8180:8080"
+
+    volumes:
+      - ./infrastructure/keycloak/import:/opt/keycloak/data/import:ro
 
     depends_on:
       keycloak-db:

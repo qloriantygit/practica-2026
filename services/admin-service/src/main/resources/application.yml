@@ -2,6 +2,7 @@ server:
   port: ${ADMIN_SERVICE_PORT:8081}
 
 spring:
+
   application:
     name: admin-service
 
@@ -27,7 +28,6 @@ spring:
       hibernate:
         jdbc:
           time_zone: UTC
-
         format_sql: true
 
   flyway:
@@ -35,7 +35,14 @@ spring:
     locations: classpath:db/migration
     validate-on-migrate: true
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8180/realms/practica-2026}
+
 management:
+
   endpoints:
     web:
       exposure:
@@ -51,6 +58,7 @@ management:
         enabled: true
 
 info:
+
   app:
     name: admin-service
     version: 1.0.0-SNAPSHOT

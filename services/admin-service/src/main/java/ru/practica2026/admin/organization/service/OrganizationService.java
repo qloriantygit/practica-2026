@@ -18,6 +18,7 @@ import ru.practica2026.admin.organization.entity.OrganizationStatus;
 import ru.practica2026.admin.organization.mapper.OrganizationMapper;
 import ru.practica2026.admin.organization.repository.OrganizationRepository;
 import ru.practica2026.admin.organization.repository.OrganizationSpecification;
+import ru.practica2026.admin.security.service.CurrentActorService;
 
 import java.util.Locale;
 import java.util.Set;
@@ -25,10 +26,7 @@ import java.util.UUID;
 
 @Service
 public class OrganizationService {
-
-    private static final String SYSTEM_ACTOR = "SYSTEM";
-
-    private static final Set<String> ALLOWED_SORT_FIELDS =
+private static final Set<String> ALLOWED_SORT_FIELDS =
             Set.of(
                     "code",
                     "name",
@@ -38,11 +36,14 @@ public class OrganizationService {
             );
 
     private final OrganizationRepository organizationRepository;
+    private final CurrentActorService currentActorService;
 
     public OrganizationService(
-            OrganizationRepository organizationRepository
+            OrganizationRepository organizationRepository,
+            CurrentActorService currentActorService
     ) {
         this.organizationRepository = organizationRepository;
+        this.currentActorService = currentActorService;
     }
 
     @Transactional
@@ -72,8 +73,8 @@ public class OrganizationService {
         );
 
         organization.setStatus(OrganizationStatus.ACTIVE);
-        organization.setCreatedBy(SYSTEM_ACTOR);
-        organization.setUpdatedBy(SYSTEM_ACTOR);
+        organization.setCreatedBy(currentActorService.getCurrentActor());
+        organization.setUpdatedBy(currentActorService.getCurrentActor());
 
         Organization saved =
                 organizationRepository.save(organization);
@@ -160,7 +161,7 @@ public class OrganizationService {
         organization.setCode(normalizedCode);
         organization.setName(request.name().trim());
         organization.setParent(parent);
-        organization.setUpdatedBy(SYSTEM_ACTOR);
+        organization.setUpdatedBy(currentActorService.getCurrentActor());
 
         organizationRepository.flush();
 
@@ -199,7 +200,7 @@ public class OrganizationService {
         }
 
         organization.setStatus(request.status());
-        organization.setUpdatedBy(SYSTEM_ACTOR);
+        organization.setUpdatedBy(currentActorService.getCurrentActor());
 
         organizationRepository.flush();
 

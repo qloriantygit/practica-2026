@@ -12,6 +12,7 @@ import ru.practica2026.admin.common.response.PageResponse;
 import ru.practica2026.admin.organization.entity.Organization;
 import ru.practica2026.admin.organization.entity.OrganizationStatus;
 import ru.practica2026.admin.organization.repository.OrganizationRepository;
+import ru.practica2026.admin.security.service.CurrentActorService;
 import ru.practica2026.admin.role.entity.Role;
 import ru.practica2026.admin.role.entity.RoleStatus;
 import ru.practica2026.admin.role.repository.RoleRepository;
@@ -38,11 +39,7 @@ import java.util.UUID;
 
 @Service
 public class UserService {
-
-    private static final String SYSTEM_ACTOR =
-            "SYSTEM";
-
-    private static final Set<String> ALLOWED_SORT_FIELDS =
+private static final Set<String> ALLOWED_SORT_FIELDS =
             Set.of(
                     "username",
                     "email",
@@ -57,17 +54,20 @@ public class UserService {
     private final UserRoleRepository userRoleRepository;
     private final RoleRepository roleRepository;
     private final OrganizationRepository organizationRepository;
+    private final CurrentActorService currentActorService;
 
     public UserService(
             UserAccountRepository userRepository,
             UserRoleRepository userRoleRepository,
             RoleRepository roleRepository,
-            OrganizationRepository organizationRepository
+            OrganizationRepository organizationRepository,
+            CurrentActorService currentActorService
     ) {
         this.userRepository = userRepository;
         this.userRoleRepository = userRoleRepository;
         this.roleRepository = roleRepository;
         this.organizationRepository = organizationRepository;
+        this.currentActorService = currentActorService;
     }
 
     @Transactional
@@ -108,8 +108,8 @@ public class UserService {
         );
         user.setOrganization(organization);
         user.setStatus(UserStatus.ACTIVE);
-        user.setCreatedBy(SYSTEM_ACTOR);
-        user.setUpdatedBy(SYSTEM_ACTOR);
+        user.setCreatedBy(currentActorService.getCurrentActor());
+        user.setUpdatedBy(currentActorService.getCurrentActor());
 
         UserAccount saved =
                 userRepository.saveAndFlush(user);
@@ -202,7 +202,7 @@ public class UserService {
                 normalizeNullable(request.lastName())
         );
         user.setOrganization(organization);
-        user.setUpdatedBy(SYSTEM_ACTOR);
+        user.setUpdatedBy(currentActorService.getCurrentActor());
 
         userRepository.flush();
 
@@ -231,7 +231,7 @@ public class UserService {
         }
 
         user.setStatus(request.status());
-        user.setUpdatedBy(SYSTEM_ACTOR);
+        user.setUpdatedBy(currentActorService.getCurrentActor());
 
         userRepository.flush();
 
@@ -307,7 +307,7 @@ public class UserService {
             assignment.setValidTo(validTo);
             assignment.setAssignedAt(now);
             assignment.setAssignedBy(
-                    SYSTEM_ACTOR
+                    currentActorService.getCurrentActor()
             );
         }
         else {
@@ -328,7 +328,7 @@ public class UserService {
             assignment.setValidTo(validTo);
             assignment.setAssignedAt(now);
             assignment.setAssignedBy(
-                    SYSTEM_ACTOR
+                    currentActorService.getCurrentActor()
             );
         }
 

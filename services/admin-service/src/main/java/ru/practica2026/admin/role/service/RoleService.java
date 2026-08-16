@@ -5,6 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ru.practica2026.admin.common.exception.ConflictException;
 import ru.practica2026.admin.common.exception.ResourceNotFoundException;
+import ru.practica2026.admin.security.service.CurrentActorService;
 import ru.practica2026.admin.role.dto.request.ChangeRoleStatusRequest;
 import ru.practica2026.admin.role.dto.request.CreateRoleRequest;
 import ru.practica2026.admin.role.dto.request.UpdateRoleRequest;
@@ -28,25 +29,24 @@ import java.util.UUID;
 
 @Service
 public class RoleService {
-
-    private static final String SYSTEM_ACTOR =
-            "SYSTEM";
-
-    private final RoleRepository roleRepository;
+private final RoleRepository roleRepository;
     private final PermissionRepository permissionRepository;
     private final RolePermissionRepository rolePermissionRepository;
     private final UserRoleRepository userRoleRepository;
+    private final CurrentActorService currentActorService;
 
     public RoleService(
             RoleRepository roleRepository,
             PermissionRepository permissionRepository,
             RolePermissionRepository rolePermissionRepository,
-            UserRoleRepository userRoleRepository
+            UserRoleRepository userRoleRepository,
+            CurrentActorService currentActorService
     ) {
         this.roleRepository = roleRepository;
         this.permissionRepository = permissionRepository;
         this.rolePermissionRepository = rolePermissionRepository;
         this.userRoleRepository = userRoleRepository;
+        this.currentActorService = currentActorService;
     }
 
     @Transactional(readOnly = true)
@@ -102,8 +102,8 @@ public class RoleService {
         );
         role.setSystemRole(false);
         role.setStatus(RoleStatus.ACTIVE);
-        role.setCreatedBy(SYSTEM_ACTOR);
-        role.setUpdatedBy(SYSTEM_ACTOR);
+        role.setCreatedBy(currentActorService.getCurrentActor());
+        role.setUpdatedBy(currentActorService.getCurrentActor());
 
         Role saved =
                 roleRepository
@@ -130,7 +130,7 @@ public class RoleService {
                 )
         );
 
-        role.setUpdatedBy(SYSTEM_ACTOR);
+        role.setUpdatedBy(currentActorService.getCurrentActor());
 
         roleRepository.flush();
 
@@ -172,7 +172,7 @@ public class RoleService {
         }
 
         role.setStatus(request.status());
-        role.setUpdatedBy(SYSTEM_ACTOR);
+        role.setUpdatedBy(currentActorService.getCurrentActor());
 
         roleRepository.flush();
 
@@ -231,7 +231,7 @@ public class RoleService {
                 Instant.now()
         );
         rolePermission.setGrantedBy(
-                SYSTEM_ACTOR
+                currentActorService.getCurrentActor()
         );
 
         rolePermissionRepository

@@ -14,6 +14,10 @@ public interface UserAccountRepository
 
     Optional<UserAccount> findByBusinessKey(UUID businessKey);
 
+    Optional<UserAccount> findByExternalId(String externalId);
+
+    Optional<UserAccount> findByUsernameIgnoreCase(String username);
+
     boolean existsByUsernameIgnoreCase(String username);
 
     boolean existsByEmailIgnoreCase(String email);

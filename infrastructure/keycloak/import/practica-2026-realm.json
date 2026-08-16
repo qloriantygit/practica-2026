@@ -1,0 +1,89 @@
+{
+  "realm": "practica-2026",
+  "enabled": true,
+
+  "displayName": "Practica 2026",
+
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "rememberMe": true,
+
+  "bruteForceProtected": true,
+
+  "clients": [
+    {
+      "clientId": "practica-cli",
+      "name": "Practica CLI and Postman",
+      "enabled": true,
+
+      "protocol": "openid-connect",
+
+      "publicClient": true,
+
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+
+      "redirectUris": [
+        "https://oauth.pstmn.io/v1/callback"
+      ],
+
+      "webOrigins": [
+        "https://oauth.pstmn.io"
+      ]
+    }
+  ],
+
+  "users": [
+    {
+      "id": "11111111-1111-1111-1111-111111111111",
+
+      "username": "test.admin",
+
+      "enabled": true,
+      "emailVerified": true,
+
+      "email": "test.admin@example.local",
+
+      "firstName": "Test",
+      "lastName": "Administrator",
+
+      "requiredActions": [],
+
+      "credentials": [
+        {
+          "type": "password",
+          "value": "${KEYCLOAK_TEST_ADMIN_PASSWORD}",
+          "temporary": false
+        }
+      ]
+    },
+
+    {
+      "id": "22222222-2222-2222-2222-222222222222",
+
+      "username": "analyst.user",
+
+      "enabled": true,
+      "emailVerified": true,
+
+      "email": "analyst.user@example.local",
+
+      "firstName": "Analyst",
+      "lastName": "User",
+
+      "requiredActions": [],
+
+      "credentials": [
+        {
+          "type": "password",
+          "value": "${KEYCLOAK_ANALYST_USER_PASSWORD}",
+          "temporary": false
+        }
+      ]
+    }
+  ]
+}
