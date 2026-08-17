@@ -239,6 +239,15 @@ public class SecurityConfig {
                                 )
 
                                 .requestMatchers(
+                                        HttpMethod.GET,
+                                        "/api/v1/audit-logs",
+                                        "/api/v1/audit-logs/**"
+                                )
+                                .hasAuthority(
+                                        "AUDIT_READ"
+                                )
+
+                                .requestMatchers(
                                         "/api/**"
                                 )
                                 .denyAll()
