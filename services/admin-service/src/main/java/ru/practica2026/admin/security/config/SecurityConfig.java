@@ -180,6 +180,27 @@ public class SecurityConfig {
                                 )
 
                                 .requestMatchers(
+                                        HttpMethod.GET,
+                                        "/api/v1/calendars",
+                                        "/api/v1/calendars/**",
+                                        "/api/v1/sla-policies",
+                                        "/api/v1/sla-policies/**"
+                                )
+                                .hasAuthority(
+                                        "SLA_READ"
+                                )
+
+                                .requestMatchers(
+                                        "/api/v1/calendars",
+                                        "/api/v1/calendars/**",
+                                        "/api/v1/sla-policies",
+                                        "/api/v1/sla-policies/**"
+                                )
+                                .hasAuthority(
+                                        "SLA_MANAGE"
+                                )
+
+                                .requestMatchers(
                                         "/api/**"
                                 )
                                 .denyAll()
