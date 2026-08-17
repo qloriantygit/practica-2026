@@ -37,4 +37,16 @@ public interface DirectoryVersionRepository
             Directory directory,
             DirectoryVersionStatus status
     );
+
+    Optional<DirectoryVersion>
+    findTopByDirectoryAndStatusOrderByVersionNumberDesc(
+            Directory directory,
+            DirectoryVersionStatus status
+    );
+
+    List<DirectoryVersion>
+    findAllByDirectoryAndStatus(
+            Directory directory,
+            DirectoryVersionStatus status
+    );
 }

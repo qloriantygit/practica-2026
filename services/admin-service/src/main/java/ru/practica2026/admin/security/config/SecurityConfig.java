@@ -143,6 +143,14 @@ public class SecurityConfig {
                                 .hasAuthority(
                                         "DIRECTORY_READ"
                                 )
+                                .requestMatchers(
+                                        HttpMethod.POST,
+                                        "/api/v1/directory-versions/*/publish"
+                                )
+                                .hasAuthority(
+                                        "DIRECTORY_PUBLISH"
+                                )
+
 
                                 .requestMatchers(
                                         "/api/v1/directories",
