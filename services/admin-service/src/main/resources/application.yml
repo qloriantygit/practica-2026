@@ -63,3 +63,10 @@ info:
     name: admin-service
     version: 1.0.0-SNAPSHOT
     description: Administration, NSI, users and permissions service
+app:
+  storage:
+    minio:
+      endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
+      access-key: ${MINIO_ROOT_USER}
+      secret-key: ${MINIO_ROOT_PASSWORD}
+      bucket: ${MINIO_DIRECTORY_BUCKET:practica-directory-files}
