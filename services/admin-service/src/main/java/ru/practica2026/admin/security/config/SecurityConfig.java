@@ -163,6 +163,23 @@ public class SecurityConfig {
                                 )
 
                                 .requestMatchers(
+                                        HttpMethod.GET,
+                                        "/api/v1/experts",
+                                        "/api/v1/experts/**"
+                                )
+                                .hasAuthority(
+                                        "EXPERT_READ"
+                                )
+
+                                .requestMatchers(
+                                        "/api/v1/experts",
+                                        "/api/v1/experts/**"
+                                )
+                                .hasAuthority(
+                                        "EXPERT_MANAGE"
+                                )
+
+                                .requestMatchers(
                                         "/api/**"
                                 )
                                 .denyAll()
