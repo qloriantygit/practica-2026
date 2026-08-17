@@ -201,6 +201,44 @@ public class SecurityConfig {
                                 )
 
                                 .requestMatchers(
+                                        HttpMethod.GET,
+                                        "/api/v1/templates",
+                                        "/api/v1/templates/**"
+                                )
+                                .hasAuthority(
+                                        "TEMPLATE_READ"
+                                )
+
+                                .requestMatchers(
+                                        "/api/v1/templates",
+                                        "/api/v1/templates/**"
+                                )
+                                .hasAuthority(
+                                        "TEMPLATE_MANAGE"
+                                )
+
+                                .requestMatchers(
+                                        HttpMethod.GET,
+                                        "/api/v1/document-types",
+                                        "/api/v1/document-types/**",
+                                        "/api/v1/document-rules",
+                                        "/api/v1/document-rules/**"
+                                )
+                                .hasAuthority(
+                                        "DOCUMENT_READ"
+                                )
+
+                                .requestMatchers(
+                                        "/api/v1/document-types",
+                                        "/api/v1/document-types/**",
+                                        "/api/v1/document-rules",
+                                        "/api/v1/document-rules/**"
+                                )
+                                .hasAuthority(
+                                        "DOCUMENT_MANAGE"
+                                )
+
+                                .requestMatchers(
                                         "/api/**"
                                 )
                                 .denyAll()
