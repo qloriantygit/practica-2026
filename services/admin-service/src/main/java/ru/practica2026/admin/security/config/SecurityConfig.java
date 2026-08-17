@@ -1,5 +1,7 @@
 package ru.practica2026.admin.security.config;
 
+
+import jakarta.servlet.DispatcherType;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -43,6 +45,10 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(
                         authorization -> authorization
+                                .dispatcherTypeMatchers(
+                                        DispatcherType.ERROR
+                                )
+                                .permitAll()
 
                                 .requestMatchers(
                                         "/actuator/health",
@@ -125,6 +131,27 @@ public class SecurityConfig {
                                 )
                                 .hasAuthority(
                                         "ROLE_READ"
+                                )
+
+                                .requestMatchers(
+                                        HttpMethod.GET,
+                                        "/api/v1/directories",
+                                        "/api/v1/directories/**",
+                                        "/api/v1/directory-versions",
+                                        "/api/v1/directory-versions/**"
+                                )
+                                .hasAuthority(
+                                        "DIRECTORY_READ"
+                                )
+
+                                .requestMatchers(
+                                        "/api/v1/directories",
+                                        "/api/v1/directories/**",
+                                        "/api/v1/directory-versions",
+                                        "/api/v1/directory-versions/**"
+                                )
+                                .hasAuthority(
+                                        "DIRECTORY_MANAGE"
                                 )
 
                                 .requestMatchers(
