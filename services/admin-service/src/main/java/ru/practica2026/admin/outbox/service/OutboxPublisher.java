@@ -112,10 +112,10 @@ public class OutboxPublisher {
                     );
 
             rabbitTemplate.send(
-                    RabbitInfrastructureConfig.EXCHANGE,
-                    event.getRoutingKey(),
-                    message
-            );
+                                resolveExchange(event),
+                                event.getRoutingKey(),
+                                message
+                        );
 
             event.setStatus(
                     OutboxStatus.SENT
@@ -205,5 +205,19 @@ public class OutboxPublisher {
                 0,
                 4000
         );
+    }
+
+    private String resolveExchange(
+            OutboxEvent event
+    ) {
+        if (
+                "NotificationRequested"
+                        .equals(event.getEventType())
+        ) {
+            return RabbitInfrastructureConfig
+                    .NOTIFICATION_EXCHANGE;
+        }
+
+        return RabbitInfrastructureConfig.EXCHANGE;
     }
 }

@@ -28,13 +28,16 @@ public class ApprovalRequestService {
 
     private final ApprovalRequestRepository repository;
     private final CurrentActorService currentActorService;
+    private final ApprovalNotificationService notificationService;
 
     public ApprovalRequestService(
             ApprovalRequestRepository repository,
-            CurrentActorService currentActorService
+            CurrentActorService currentActorService,
+            ApprovalNotificationService notificationService
     ) {
         this.repository = repository;
         this.currentActorService = currentActorService;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -83,6 +86,10 @@ public class ApprovalRequestService {
                 repository.saveAndFlush(
                         approval
                 );
+
+        notificationService.notifySubmitted(
+                saved
+        );
 
         return ApprovalMapper.toResponse(saved);
     }
@@ -225,6 +232,10 @@ public class ApprovalRequestService {
         approval.setUpdatedBy(actor);
 
         repository.flush();
+
+        notificationService.notifyDecision(
+                approval
+        );
 
         return ApprovalMapper.toResponse(
                 approval

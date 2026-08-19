@@ -31,4 +31,8 @@ public interface UserAccountRepository
             String email,
             UUID businessKey
     );
+
+    java.util.Optional<UserAccount> findFirstByUsernameIgnoreCase(
+            String username
+    );
 }

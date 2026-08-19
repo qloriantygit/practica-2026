@@ -15,6 +15,11 @@ public enum AdminEventType {
     EXPERT_PROFILE_UPDATED(
             "ExpertProfileUpdated",
             "admin.expert.profile.updated"
+    ),
+
+    NOTIFICATION_REQUESTED(
+            "NotificationRequested",
+            "notification.requested"
     );
 
     private final String eventName;

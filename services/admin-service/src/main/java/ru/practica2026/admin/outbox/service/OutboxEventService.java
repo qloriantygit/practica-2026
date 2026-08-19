@@ -173,4 +173,158 @@ public class OutboxEventService {
             );
         }
     }
+
+    @Transactional
+    public void enqueueNotification(
+            String correlationId,
+            String actor,
+            String entityId,
+            String recipient,
+            String subject,
+            String body
+    ) {
+        try {
+            UUID eventId =
+                    UUID.randomUUID();
+
+            Instant occurredAt =
+                    Instant.now();
+
+            Map<String, Object> payload =
+                    new LinkedHashMap<>();
+
+            payload.put(
+                    "channel",
+                    "EMAIL"
+            );
+
+            payload.put(
+                    "recipient",
+                    recipient
+            );
+
+            payload.put(
+                    "subject",
+                    subject
+            );
+
+            payload.put(
+                    "body",
+                    body
+            );
+
+            Map<String, Object> envelope =
+                    new LinkedHashMap<>();
+
+            envelope.put(
+                    "eventId",
+                    eventId
+            );
+
+            envelope.put(
+                    "eventType",
+                    AdminEventType
+                            .NOTIFICATION_REQUESTED
+                            .getEventName()
+            );
+
+            envelope.put(
+                    "eventVersion",
+                    "1.0"
+            );
+
+            envelope.put(
+                    "correlationId",
+                    correlationId
+            );
+
+            envelope.put(
+                    "occurredAt",
+                    occurredAt
+            );
+
+            envelope.put(
+                    "source",
+                    "admin-service"
+            );
+
+            envelope.put(
+                    "actorId",
+                    actor
+            );
+
+            envelope.put(
+                    "entityId",
+                    entityId
+            );
+
+            envelope.put(
+                    "payload",
+                    payload
+            );
+
+            OutboxEvent event =
+                    new OutboxEvent();
+
+            event.setEventId(eventId);
+
+            event.setEventType(
+                    AdminEventType
+                            .NOTIFICATION_REQUESTED
+                            .getEventName()
+            );
+
+            event.setEventVersion("1.0");
+
+            event.setCorrelationId(
+                    correlationId
+            );
+
+            event.setSource(
+                    "admin-service"
+            );
+
+            event.setActorId(actor);
+
+            event.setEntityId(
+                    entityId
+            );
+
+            event.setRoutingKey(
+                    AdminEventType
+                            .NOTIFICATION_REQUESTED
+                            .getRoutingKey()
+            );
+
+            event.setPayload(
+                    objectMapper
+                            .writeValueAsString(
+                                    envelope
+                            )
+            );
+
+            event.setStatus(
+                    OutboxStatus.PENDING
+            );
+
+            event.setRetryCount(0);
+
+            event.setNextAttemptAt(
+                    Instant.now()
+            );
+
+            event.setCreatedBy(actor);
+            event.setUpdatedBy(actor);
+
+            repository.saveAndFlush(
+                    event
+            );
+        }
+        catch (Exception exception) {
+            throw new IllegalStateException(
+                    "Failed to create notification outbox event",
+                    exception
+            );
+        }
+    }
 }

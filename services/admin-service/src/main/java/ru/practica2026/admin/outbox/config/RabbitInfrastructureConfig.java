@@ -25,6 +25,9 @@ public class RabbitInfrastructureConfig {
     public static final String EXCHANGE =
             "admin.events";
 
+    public static final String NOTIFICATION_EXCHANGE =
+            "notification.events";
+
     public static final String DEAD_EXCHANGE =
             "admin.events.dlx";
 
