@@ -246,6 +246,24 @@ public class SecurityConfig {
                                 .hasAuthority(
                                         "AUDIT_READ"
                                 )
+                                .requestMatchers(
+                                        HttpMethod.GET,
+                                        "/api/v1/approvals",
+                                        "/api/v1/approvals/**"
+                                )
+                                .hasAuthority(
+                                        "APPROVAL_READ"
+                                )
+
+                                .requestMatchers(
+                                        HttpMethod.POST,
+                                        "/api/v1/approvals/*/approve",
+                                        "/api/v1/approvals/*/reject"
+                                )
+                                .hasAuthority(
+                                        "APPROVAL_MANAGE"
+                                )
+
 
                                 .requestMatchers(
                                         "/api/**"

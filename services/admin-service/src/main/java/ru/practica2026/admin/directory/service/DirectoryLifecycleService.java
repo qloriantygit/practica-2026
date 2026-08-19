@@ -3,6 +3,7 @@ package ru.practica2026.admin.directory.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import ru.practica2026.admin.approval.service.ApprovalRequestService;
 import ru.practica2026.admin.common.exception.ConflictException;
 import ru.practica2026.admin.common.exception.ResourceNotFoundException;
 import ru.practica2026.admin.directory.dto.request.CreateDirectoryVersionRequest;
@@ -29,17 +30,20 @@ public class DirectoryLifecycleService {
     private final DirectoryVersionRepository directoryVersionRepository;
     private final DirectoryItemRepository directoryItemRepository;
     private final CurrentActorService currentActorService;
+    private final ApprovalRequestService approvalRequestService;
 
     public DirectoryLifecycleService(
             DirectoryRepository directoryRepository,
             DirectoryVersionRepository directoryVersionRepository,
             DirectoryItemRepository directoryItemRepository,
-            CurrentActorService currentActorService
+            CurrentActorService currentActorService,
+            ApprovalRequestService approvalRequestService
     ) {
         this.directoryRepository = directoryRepository;
         this.directoryVersionRepository = directoryVersionRepository;
         this.directoryItemRepository = directoryItemRepository;
         this.currentActorService = currentActorService;
+        this.approvalRequestService = approvalRequestService;
     }
 
     @Transactional
@@ -77,6 +81,10 @@ public class DirectoryLifecycleService {
         );
 
         directoryVersionRepository.flush();
+        approvalRequestService
+                .createDirectoryVersionApproval(
+                        version.getBusinessKey()
+                );
 
         return DirectoryMapper.toVersion(
                 version,
@@ -150,7 +158,47 @@ public class DirectoryLifecycleService {
         );
     }
 
-    @Transactional
+        @Transactional
+    public DirectoryVersionResponse returnToDraftFromApproval(
+            UUID versionBusinessKey
+    ) {
+        DirectoryVersion version =
+                getVersion(
+                        versionBusinessKey
+                );
+
+        if (
+                version.getStatus()
+                        != DirectoryVersionStatus.ON_APPROVAL
+        ) {
+            throw new ConflictException(
+                    "Only ON_APPROVAL directory version can be rejected"
+            );
+        }
+
+        version.setStatus(
+                DirectoryVersionStatus.DRAFT
+        );
+
+        version.setUpdatedBy(
+                currentActorService
+                        .getCurrentActor()
+        );
+
+        directoryVersionRepository.flush();
+
+        long itemCount =
+                directoryItemRepository
+                        .countByDirectoryVersion(
+                                version
+                        );
+
+        return DirectoryMapper.toVersion(
+                version,
+                itemCount
+        );
+    }
+@Transactional
     public DirectoryVersionResponse createNextVersion(
             UUID directoryBusinessKey,
             CreateDirectoryVersionRequest request

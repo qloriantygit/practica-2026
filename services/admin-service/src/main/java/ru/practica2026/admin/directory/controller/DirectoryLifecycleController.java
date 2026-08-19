@@ -41,18 +41,6 @@ public class DirectoryLifecycleController {
     }
 
     @PostMapping(
-            "/directory-versions/{versionBusinessKey}/publish"
-    )
-    public DirectoryVersionResponse publish(
-            @PathVariable
-            UUID versionBusinessKey
-    ) {
-        return lifecycleService.publish(
-                versionBusinessKey
-        );
-    }
-
-    @PostMapping(
             "/directories/{directoryBusinessKey}/versions"
     )
     @ResponseStatus(HttpStatus.CREATED)

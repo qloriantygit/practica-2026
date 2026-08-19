@@ -564,6 +564,10 @@ public class AdminMutationAuditAspect {
     private String resolveEntityType(
             String path
     ) {
+        if (path.startsWith("/api/v1/approvals")) {
+            return "ApprovalRequest";
+        }
+
         if (path.contains("/directory-versions")) {
             return "DirectoryVersion";
         }
