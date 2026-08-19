@@ -1,69 +1,68 @@
 server:
-  port: ${API_GATEWAY_PORT:8080}
+  port: 8080
 
 spring:
-
   application:
     name: api-gateway
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8180/realms/practica-2026}
+
   cloud:
-
     gateway:
-
       server:
-
         webflux:
+
+          metrics:
+            enabled: true
 
           routes:
 
             - id: notification-service
+              order: -10
 
               uri: ${NOTIFICATION_SERVICE_URL:http://localhost:8082}
 
               predicates:
-
-                - Path=/api/v1/notifications/**
-
+                - Path=/api/v1/notification-deliveries,/api/v1/notification-deliveries/**
 
             - id: admin-service
+              order: 0
 
               uri: ${ADMIN_SERVICE_URL:http://localhost:8081}
 
               predicates:
-
                 - Path=/api/v1/**
-
 
 management:
 
   endpoints:
-
     web:
-
       exposure:
-
         include:
           - health
           - info
           - prometheus
+          - gateway
 
   endpoint:
 
     health:
-
       show-details: always
 
       probes:
-
         enabled: true
 
+    gateway:
+      access: read-only
 
-info:
+  health:
 
-  app:
+    livenessstate:
+      enabled: true
 
-    name: api-gateway
-
-    version: 1.0.0-SNAPSHOT
-
-    description: API Gateway for practica-2026
+    readinessstate:
+      enabled: true
