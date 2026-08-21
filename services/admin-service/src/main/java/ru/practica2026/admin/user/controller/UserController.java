@@ -6,6 +6,8 @@ import jakarta.validation.constraints.Min;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,9 +26,12 @@ import ru.practica2026.admin.user.dto.request.ChangeUserStatusRequest;
 import ru.practica2026.admin.user.dto.request.CreateUserRequest;
 import ru.practica2026.admin.user.dto.request.UpdateUserRequest;
 import ru.practica2026.admin.user.dto.response.UserDetailResponse;
+import ru.practica2026.admin.user.dto.response.IdpSyncResponse;
 import ru.practica2026.admin.user.dto.response.UserResponse;
 import ru.practica2026.admin.user.entity.UserStatus;
 import ru.practica2026.admin.user.service.UserService;
+import ru.practica2026.admin.security.service.LocalUserIdentityService;
+import ru.practica2026.admin.user.entity.UserAccount;
 
 import java.net.URI;
 import java.util.UUID;
@@ -37,11 +42,14 @@ import java.util.UUID;
 public class UserController {
 
     private final UserService userService;
+    private final LocalUserIdentityService localUserIdentityService;
 
     public UserController(
-            UserService userService
+            UserService userService,
+            LocalUserIdentityService localUserIdentityService
     ) {
         this.userService = userService;
+        this.localUserIdentityService = localUserIdentityService;
     }
 
     @PostMapping
@@ -180,5 +188,25 @@ public class UserController {
         return ResponseEntity
                 .noContent()
                 .build();
+    }
+
+    @PostMapping("/sync-idp")
+    public IdpSyncResponse synchronizeWithIdp(
+            @AuthenticationPrincipal
+            Jwt jwt
+    ) {
+        UserAccount user =
+                localUserIdentityService
+                        .synchronizeCurrentIdentity(jwt);
+
+        return new IdpSyncResponse(
+                user.getBusinessKey(),
+                user.getUsername(),
+                user.getExternalId(),
+                user.getEmail(),
+                user.getFirstName(),
+                user.getLastName(),
+                true
+        );
     }
 }

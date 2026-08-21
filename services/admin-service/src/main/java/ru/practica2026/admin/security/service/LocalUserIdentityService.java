@@ -243,4 +243,29 @@ public class LocalUserIdentityService {
                 user.getId()
         );
     }
+
+    @Transactional
+    public UserAccount synchronizeCurrentIdentity(
+            Jwt jwt
+    ) {
+        Optional<Long> resolvedUserId =
+                resolveAndLinkActiveUserId(jwt);
+
+        if (resolvedUserId.isEmpty()) {
+            throw new IllegalStateException(
+                    "Authenticated IdP user cannot be synchronized with a local active user"
+            );
+        }
+
+        String externalId =
+                normalize(jwt.getSubject());
+
+        return userRepository
+                .findByExternalId(externalId)
+                .orElseThrow(
+                        () -> new IllegalStateException(
+                                "Synchronized local user was not found"
+                        )
+                );
+    }
 }
