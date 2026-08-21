@@ -11,6 +11,8 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.web.SecurityFilterChain;
 
 import ru.practica2026.admin.security.converter.LocalPermissionJwtGrantedAuthoritiesConverter;
+import ru.practica2026.admin.security.filter.OrganizationAbacFilter;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 
 @Configuration
 public class SecurityConfig {
@@ -18,7 +20,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
-            LocalPermissionJwtGrantedAuthoritiesConverter authoritiesConverter
+            LocalPermissionJwtGrantedAuthoritiesConverter authoritiesConverter,
+            OrganizationAbacFilter organizationAbacFilter
     ) throws Exception {
 
         JwtAuthenticationConverter jwtAuthenticationConverter =
@@ -283,6 +286,11 @@ public class SecurityConfig {
                                                 )
                                 )
                 );
+
+        http.addFilterAfter(
+                organizationAbacFilter,
+                BearerTokenAuthenticationFilter.class
+        );
 
         return http.build();
     }

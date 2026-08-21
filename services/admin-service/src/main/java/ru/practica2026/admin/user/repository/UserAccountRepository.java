@@ -35,4 +35,31 @@ public interface UserAccountRepository
     java.util.Optional<UserAccount> findFirstByUsernameIgnoreCase(
             String username
     );
+
+    @org.springframework.data.jpa.repository.Query(
+            value = """
+                    SELECT EXISTS (
+                        SELECT 1
+                        FROM user_roles ur
+                        JOIN roles r
+                          ON r.id = ur.role_id
+                        WHERE ur.user_id = :userId
+                          AND r.code = 'ADMIN'
+                          AND r.status = 'ACTIVE'
+                          AND (
+                              ur.valid_from IS NULL
+                              OR ur.valid_from <= CURRENT_TIMESTAMP
+                          )
+                          AND (
+                              ur.valid_to IS NULL
+                              OR ur.valid_to > CURRENT_TIMESTAMP
+                          )
+                    )
+                    """,
+            nativeQuery = true
+    )
+    boolean hasActiveAdminRole(
+            @org.springframework.data.repository.query.Param("userId")
+            Long userId
+    );
 }
