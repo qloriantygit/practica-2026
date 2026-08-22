@@ -268,12 +268,17 @@ public class SecurityConfig {
                                 )
 
 
-                                .requestMatchers(
+                                                    .requestMatchers(
+                            "/api/v1/saved-views",
+                            "/api/v1/saved-views/**"
+                    )
+                    .authenticated()
+.requestMatchers(
                                         "/api/**"
                                 )
                                 .denyAll()
 
-                                .anyRequest()
+.anyRequest()
                                 .denyAll()
                 )
 
